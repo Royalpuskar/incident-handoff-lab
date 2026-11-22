@@ -80,3 +80,46 @@ test('export never certifies readiness and rejects invalid answers',()=>{
   assert.match(report.limitation,/Not an incident report/);
   assert.throws(()=>buildHandoff({e1:'unknown'}));
 });
+
+test('DOM harness: review enables export; editing and reset invalidate it',async t=>{
+  class Element {
+    constructor(tag){this.tag=tag;this.children=[];this.listeners={};this.disabled=false;this.checked=false;}
+    append(...children){for(const child of children){this.children.push(child);if(child instanceof Element)child.parent=this;}}
+    replaceChildren(...children){this.children=[];this.append(...children);}
+    addEventListener(type,handler){this.listeners[type]=handler;}
+    remove(){if(this.parent)this.parent.children=this.parent.children.filter(child=>child!==this);}
+    click(){if(this.tag==='a'){downloads.push({href:this.href,name:this.download});return;}if(!this.disabled)this.onclick?.();}
+  }
+  const downloads=[], controls=Object.fromEntries(['timeline','summary','feedback','evaluate','reset','download'].map(id=>[id,new Element(id)]));
+  controls.download.disabled=true;
+  const doc={body:new Element('body'),getElementById:id=>controls[id],createElement:tag=>new Element(tag),createTextNode:value=>value};
+  const old=globalThis.document;
+  globalThis.document=doc;
+  t.after(()=>{if(old===undefined)delete globalThis.document;else globalThis.document=old;});
+  let blob;
+  t.mock.method(URL,'createObjectURL',value=>{blob=value;return 'blob:synthetic-test';});
+  t.mock.method(URL,'revokeObjectURL',()=>{});
+  await import('./app.mjs');
+  const radios=controls.timeline.children.flatMap(field=>field.children.filter(el=>el.tag==='label').map(label=>label.children[0]));
+  assert.equal(radios.length,15);
+  controls.download.click();assert.equal(downloads.length,0);
+  const first=radios.find(r=>r.name==='e1'&&r.value==='confirmed');
+  first.checked=true;first.listeners.change();
+  controls.evaluate.click();
+  assert.match(controls.summary.textContent,/REVIEW REQUIRED/);
+  assert.equal(controls.download.disabled,false);
+  controls.download.click();
+  assert.equal(downloads[0].name,'synthetic-handoff.json');
+  const result=JSON.parse(await blob.text());
+  assert.equal(result.scope,'SYNTHETIC TRAINING ONLY');
+  assert.equal(result.records[0].unsupportedConfirmation,true);
+  first.checked=false;first.listeners.change();
+  assert.equal(controls.download.disabled,true);
+  assert.equal(controls.feedback.children.length,0);
+  // Direct invocation must also fail closed; disabled UI is not the only guard.
+  controls.download.onclick();assert.equal(downloads.length,1);
+  controls.evaluate.click();assert.equal(controls.download.disabled,false);
+  controls.reset.click();assert.equal(controls.download.disabled,true);
+  assert.ok(radios.every(r=>!r.checked));controls.download.onclick();
+  assert.equal(downloads.length,1);
+});
