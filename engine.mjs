@@ -15,6 +15,7 @@ export function evaluate(answers){
   const correct=rows.filter(r=>r.correct).length;
   const overclaims=rows.filter(r=>r.overclaim).length;
   const unanswered=rows.filter(r=>r.selected===null).length;
-  return {score:Math.max(0,correct*20-overclaims*10),correct,overclaims,unanswered,
-    handoff:unanswered||overclaims?'REVIEW REQUIRED':'PRACTICE COMPLETE',rows};
+  const incorrect=rows.filter(r=>r.selected!==null&&!r.correct).length;
+  return {score:Math.max(0,correct*20-overclaims*10),correct,overclaims,unanswered,incorrect,
+    handoff:unanswered||incorrect?'REVIEW REQUIRED':'PRACTICE COMPLETE',rows};
 }
