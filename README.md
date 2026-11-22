@@ -10,7 +10,7 @@ A chronological incident notebook with evidence provenance, uncertainty-aware de
 
 ## Run the first prototype
 
-Requires Node.js 22+ and Python 3. Clone the repository, run `node --test engine.test.mjs`, then serve the site with `python3 -m http.server 8000` and open `http://localhost:8000`. Classify the five fictional records and review the score and explanation. The score is 20 per correct answer minus 10 per unsupported confirmation, floored at zero. This is an educational exercise, not a professional readiness certification.
+Requires Node.js 22+ and Python 3. Clone the repository, run `node --test engine.test.mjs`, then serve the site with `python3 -m http.server 8000` and open `http://localhost:8000`. Classify the five fictional records and review the score and explanation. The score is 20 per correct answer minus 10 per unsupported confirmation, floored at zero. Practice completes only when every evidence record is correctly classified. Incorrect responses, including underconfidence rather than overclaims, require review. This is an educational exercise, not a professional readiness certification.
 
 ## Implementation milestones
 - [x] Create a reproducible synthetic incident scenario.
@@ -20,6 +20,6 @@ Requires Node.js 22+ and Python 3. Clone the repository, run `node --test engine
 - [ ] Add accessible demo, documentation and license.
 - [ ] Document AI tools and other third-party resources in the submission.
 
-Status: initial notebook interface, engine, five tests and CI configuration uploaded; test execution and browser validation remain to be confirmed; no deployed demo or verified contest submission yet. AI-assisted development will be disclosed.
+Status: notebook interface, engine, eight automated tests and CI configuration. The eight-test suite passed at revision `3941a01` ([CI logs](https://github.com/Royalpuskar/incident-handoff-lab/actions/runs/45004942432/job/137154311378)), including exhaustive coverage of the 1,024 synthetic answer combinations. Browser validation, deployment and verified contest submission remain pending. AI-assisted development will be disclosed.
 
 Copyright 2026 Royalpuskar.

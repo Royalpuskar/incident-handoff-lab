@@ -16,7 +16,7 @@ for(const item of scenario){
 function clear(){$('summary').textContent='Awaiting your handoff.';$('feedback').replaceChildren();}
 $('evaluate').onclick=()=>{
   const result=evaluate(Object.fromEntries(inputs.filter(i=>i.checked).map(i=>[i.name,i.value])));
-  $('summary').textContent=result.score+'/100 · '+result.handoff+' · '+result.overclaims+' overclaims · '+result.unanswered+' unanswered';
+  $('summary').textContent=result.score+'/100 · '+result.handoff+' · '+result.incorrect+' incorrect · '+result.overclaims+' overclaims · '+result.unanswered+' unanswered';
   $('feedback').replaceChildren(...result.rows.map(row=>{
     const p=document.createElement('p');
     p.textContent=row.time+' — '+(row.correct?'Correct':row.overclaim?'Unsupported confirmation':'Review classification')+'. Expected: '+choices[row.expected]+'. Your answer: '+(choices[row.selected]||'None')+'.';
