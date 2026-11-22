@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {evaluate} from './engine.mjs';
+import {evaluate,buildHandoff} from './engine.mjs';
 import {scenario} from './scenario.mjs';
 test('perfect classification scores 100',()=>{
   const result=evaluate(Object.fromEntries(scenario.map(e=>[e.id,e.classification])));
@@ -56,4 +56,27 @@ test('exhaustive classification states cannot falsely complete practice',()=>{
   }
   assert.equal(completed,1);
   assert.equal(states,1024);
+});
+
+test('export preserves fictional evidence, uncertainty and unanswered records',()=>{
+  const answers={e1:'confirmed',e2:'hypothesis'};
+  const report=buildHandoff(answers);
+  assert.equal(report.status,'REVIEW REQUIRED');
+  assert.equal(report.scope,'SYNTHETIC TRAINING ONLY');
+  assert.deepEqual(report.counts,{correct:1,incorrect:1,overclaims:1,unanswered:3});
+  assert.equal(report.records[0].unsupportedConfirmation,true);
+  assert.equal(report.records[0].learnerClassification,'confirmed');
+  assert.equal(report.records[0].referenceClassification,'observation');
+  assert.equal(report.records[2].learnerClassification,null);
+  assert.equal(report.records[2].reviewRequired,true);
+  assert.equal(report.records[0].fictionalEvidence,scenario[0].text);
+  assert.deepEqual(answers,{e1:'confirmed',e2:'hypothesis'});
+  assert.deepEqual(JSON.parse(JSON.stringify(report)),report);
+});
+test('export never certifies readiness and rejects invalid answers',()=>{
+  const report=buildHandoff(Object.fromEntries(scenario.map(e=>[e.id,e.classification])));
+  assert.equal(report.status,'PRACTICE COMPLETE');assert.equal(report.score,100);
+  assert.ok(report.records.every(r=>!r.reviewRequired));
+  assert.match(report.limitation,/Not an incident report/);
+  assert.throws(()=>buildHandoff({e1:'unknown'}));
 });

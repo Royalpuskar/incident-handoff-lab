@@ -19,3 +19,20 @@ export function evaluate(answers){
   return {score:Math.max(0,correct*20-overclaims*10),correct,overclaims,unanswered,incorrect,
     handoff:unanswered||incorrect?'REVIEW REQUIRED':'PRACTICE COMPLETE',rows};
 }
+
+/** Export fictional training evidence, not an operational incident report. */
+export function buildHandoff(answers){
+  const result=evaluate(answers);
+  return {
+    schemaVersion:1,scenarioId:'shift-01',scope:'SYNTHETIC TRAINING ONLY',
+    status:result.handoff,score:result.score,
+    counts:{correct:result.correct,incorrect:result.incorrect,overclaims:result.overclaims,unanswered:result.unanswered},
+    records:result.rows.map((row,index)=>({
+      evidenceId:row.id,time:row.time,fictionalEvidence:scenario[index].text,
+      learnerClassification:row.selected,referenceClassification:row.expected,
+      reviewRequired:!row.correct,unsupportedConfirmation:row.overclaim
+    })),
+    nextStep:result.handoff==='PRACTICE COMPLETE'?'Review the fictional scenario with your instructor.':'Revisit incorrect or missing classifications before completing this exercise.',
+    limitation:'Not an incident report, authorization, or professional readiness certification.'
+  };
+}
