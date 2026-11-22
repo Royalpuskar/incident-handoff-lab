@@ -20,6 +20,6 @@ Requires Node.js 22+ and Python 3. Clone the repository, run `node --test engine
 - [ ] Add accessible demo, documentation and license.
 - [ ] Document AI tools and other third-party resources in the submission.
 
-Status: initial notebook interface, engine, seven tests and CI configuration uploaded; test execution and browser validation remain to be confirmed; no deployed demo or verified contest submission yet. AI-assisted development will be disclosed.
+Status: notebook interface, engine, eight automated tests and CI configuration. The eight-test suite passed at revision `3941a01` ([CI logs](https://github.com/Royalpuskar/incident-handoff-lab/actions/runs/45004942432/job/137154311378)), including exhaustive coverage of the 1,024 synthetic answer combinations. Browser validation, deployment and verified contest submission remain pending. AI-assisted development will be disclosed.
 
 Copyright 2026 Royalpuskar.
